@@ -145,6 +145,7 @@ function onPointerDown(event) {
       if (intersect.object !== plane) {
         scene.remove(intersect.object);
         objects.splice(objects.indexOf(intersect.object), 1);
+        window.deleteVoxel (intersection.object.position)
       }
 
       // create cube
@@ -154,6 +155,8 @@ function onPointerDown(event) {
       voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
       scene.add(voxel);
       objects.push(voxel);
+      window.createVoxel (voxel.position, "scary_woman")
+
     }
 
     render();
@@ -161,13 +164,16 @@ function onPointerDown(event) {
 }
 
 window.displayVoxelPainting = function (positions) {
-  for (idx in positions) {
-    const position =  positions[idx];
-    const voxel = new THREE.Mesh(cubeGeo, cubeMaterials["scary_woman"]);
+  for (const idx in positions) {
+    const position =  positions[idx] ["position"];
+    const texture = positions[idx] ["texture"];
+    console.log (position, texture)
+    const voxel = new THREE.Mesh(cubeGeo, cubeMaterials[texture]);
     voxel.position.copy(position)
     voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
     scene.add(voxel);
     objects.push(voxel);
+
   }
 }
 

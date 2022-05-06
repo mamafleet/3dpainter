@@ -1,7 +1,7 @@
 /* script.js */
 //conventient failure messages
 const Fs = ([cF, rF, uF, dF] = ["create", "read", "update", "delete"].map(
-  (op) => `failed to ${op} translation[s]`
+  (op) => `failed to ${op} voxels`
 ));
 
 /* wapi setup */
@@ -24,13 +24,14 @@ function initApp() {
   };
   const t = wapi.readToken();
   message.innerHTML = `hello ${t["provider"]}/${t["username"]},<br>`;
-  readLines();
+  loadVoxelPainting();
 }
 
 if (wapi.isSignedIn()) initApp();
 else wapi.authListen(initApp);
 
 function loadVoxelPainting() {
+
   if (username.value == "") username.value = "praemium-cranium";
 
   if (painting.value == "") painting.value = "main";
@@ -39,6 +40,7 @@ function loadVoxelPainting() {
     null,
     `${window.location.pathname}?user=${username.value}&painting=${painting.value}`
   );
+  console.log(username.value, painting.value)
   wapi
     .read("voxel", {painting:painting.value}, username.value, "api.web10.app")
     .then((response) => displayVoxelPainting(response.data))
@@ -47,7 +49,7 @@ function loadVoxelPainting() {
 
 function createVoxel (position,texture) {
     wapi
-      .create("voxel", { position: position, texture: texture })
+      .create("voxel", { position: position, texture: texture, painting: painting.value })
       .catch(
         (error) => (message.innerHTML = `${cF} : ${error.response.data.detail}`)
       );
