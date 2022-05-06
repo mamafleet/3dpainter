@@ -1,4 +1,3 @@
-
 import * as THREE from "three";
 import { OrbitControls } from "./orbitcontrols.js";
 
@@ -9,11 +8,9 @@ let pointer,
   isShiftDown = false;
 
 let rollOverMesh, rollOverMaterial;
-let cubeGeo, cubeMaterial;
+let cubeGeo, cubeMaterials;
 
 const objects = [];
-var postions = [];
-window.postions = postions;
 init();
 render();
 
@@ -44,10 +41,12 @@ function init() {
   // cubes
 
   cubeGeo = new THREE.BoxGeometry(50, 50, 50);
-  cubeMaterial = new THREE.MeshLambertMaterial({
-    color: 0xfeb74c,
-    map: new THREE.TextureLoader().load("scarywoman.jpeg"),
-  });
+  cubeMaterials = {
+    scary_woman: new THREE.MeshLambertMaterial({
+      color: 0xfeb74c,
+      map: new THREE.TextureLoader().load("scary_woman.jpeg"),
+    }),
+  };
 
   // grid
 
@@ -116,10 +115,7 @@ function onPointerMove(event) {
   if (intersects.length > 0) {
     const intersect = intersects[0];
 
-    rollOverMesh.position
-
-      .copy(intersect.point)
-      .add(intersect.face.normal);
+    rollOverMesh.position.copy(intersect.point).add(intersect.face.normal);
     rollOverMesh.position
       .divideScalar(50)
       .floor()
@@ -149,26 +145,29 @@ function onPointerDown(event) {
       if (intersect.object !== plane) {
         scene.remove(intersect.object);
         objects.splice(objects.indexOf(intersect.object), 1);
-        postions.splice(postions.indexOf(intersect.object.position), 1);
       }
 
       // create cube
     } else {
-      const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
+      const voxel = new THREE.Mesh(cubeGeo, cubeMaterials["scary_woman"]);
       voxel.position.copy(intersect.point).add(intersect.face.normal);
-      voxel.position
-        .divideScalar(50)
-        .floor()
-        .multiplyScalar(50)
-        .addScalar(25);
+      voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
       scene.add(voxel);
-
       objects.push(voxel);
-      postions.push(voxel.position)
-
     }
 
     render();
+  }
+}
+
+window.displayVoxelPainting = function (positions) {
+  for (idx in positions) {
+    const position =  positions[idx];
+    const voxel = new THREE.Mesh(cubeGeo, cubeMaterials["scary_woman"]);
+    voxel.position.copy(position)
+    voxel.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
+    scene.add(voxel);
+    objects.push(voxel);
   }
 }
 
@@ -201,7 +200,4 @@ window.toggleMode = function () {
     mode_paint.innerHTML = "orbit";
     controls.dispose();
   }
-}
-
-
-
+};
